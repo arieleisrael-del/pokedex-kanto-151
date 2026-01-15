@@ -51,47 +51,60 @@ button {
 <div class="grid" id="grid"></div>
 
 <script>
-const pokemons = [...Array(151)].map((_, i) => i + 1);
-let captured = JSON.parse(localStorage.getItem("kanto151")) || [];
-let showMissing = false;
-
-function render() {
+document.addEventListener("DOMContentLoaded", function () {
   const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  const list = showMissing ? pokemons.filter(p => !captured.includes(p)) : pokemons;
+  const count = document.getElementById("count");
+  let showMissing = false;
 
-  list.forEach(id => {
-    const div = document.createElement("div");
-    div.className = "card" + (captured.includes(id) ? " done" : "");
-    div.onclick = () => toggle(id);
-    div.innerHTML = `
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png">
-      <div>#${String(id).padStart(3, "0")}</div>
-    `;
-    grid.appendChild(div);
-  });
+  const pokemons = [];
+  for (let i = 1; i <= 151; i++) pokemons.push(i);
 
-  document.getElementById("count").innerText =
-    "Completos: " + captured.length + " / 151";
-}
-
-function toggle(id) {
-  if (captured.includes(id)) {
-    captured = captured.filter(p => p !== id);
-  } else {
-    captured.push(id);
+  let captured = [];
+  try {
+    captured = JSON.parse(localStorage.getItem("kanto151")) || [];
+  } catch {
+    captured = [];
   }
-  localStorage.setItem("kanto151", JSON.stringify(captured));
-  render();
-}
 
-function toggleMissing() {
-  showMissing = !showMissing;
-  render();
-}
+  function render() {
+    grid.innerHTML = "";
+    const list = showMissing
+      ? pokemons.filter(p => !captured.includes(p))
+      : pokemons;
 
-render();
+    list.forEach(id => {
+      const div = document.createElement("div");
+      div.className = "card" + (captured.includes(id) ? " done" : "");
+      div.innerHTML = `
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png" loading="lazy">
+        <div>#${String(id).padStart(3, "0")}</div>
+      `;
+      div.onclick = () => toggle(id);
+      grid.appendChild(div);
+    });
+
+    count.innerText = "Completos: " + captured.length + " / 151";
+  }
+
+  function toggle(id) {
+    if (captured.includes(id)) {
+      captured = captured.filter(p => p !== id);
+    } else {
+      captured.push(id);
+    }
+    localStorage.setItem("kanto151", JSON.stringify(captured));
+    render();
+  }
+
+  window.toggleMissing = function () {
+    showMissing = !showMissing;
+    render();
+  };
+
+  render();
+});
 </script>
+
 
 </body>
 </html>
