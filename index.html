@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pokédex Kanto 151</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fcecec;
+  padding: 10px;
+}
+h1 { text-align: center; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 6px;
+  text-align: center;
+  border: 2px solid #ddd;
+}
+.card.done {
+  background: #4ade80;
+  color: white;
+}
+img {
+  width: 48px;
+  image-rendering: pixelated;
+}
+button {
+  margin: 10px auto;
+  display: block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #dc2626;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<h1>Pokédex Kanto – 151</h1>
+<p id="count" style="text-align:center"></p>
+<button onclick="toggleMissing()">Mostrar apenas os que faltam</button>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const pokemons = [...Array(151)].map((_, i) => i + 1);
+let captured = JSON.parse(localStorage.getItem("kanto151")) || [];
+let showMissing = false;
+
+function render() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const list = showMissing ? pokemons.filter(p => !captured.includes(p)) : pokemons;
+
+  list.forEach(id => {
+    const div = document.createElement("div");
+    div.className = "card" + (captured.includes(id) ? " done" : "");
+    div.onclick = () => toggle(id);
+    div.innerHTML = `
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png">
+      <div>#${String(id).padStart(3, "0")}</div>
+    `;
+    grid.appendChild(div);
+  });
+
+  document.getElementById("count").innerText =
+    "Completos: " + captured.length + " / 151";
+}
+
+function toggle(id) {
+  if (captured.includes(id)) {
+    captured = captured.filter(p => p !== id);
+  } else {
+    captured.push(id);
+  }
+  localStorage.setItem("kanto151", JSON.stringify(captured));
+  render();
+}
+
+function toggleMissing() {
+  showMissing = !showMissing;
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
